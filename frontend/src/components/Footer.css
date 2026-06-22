@@ -1,0 +1,22 @@
+.footer {
+  background: var(--color-bg-elevated);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding: var(--space-xl) var(--space-xl);
+  text-align: center;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-text {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.footer-sub {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
