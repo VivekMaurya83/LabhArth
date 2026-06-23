@@ -11,12 +11,28 @@ from backend.utils.config import get_settings
 settings = get_settings()
 
 # Async engine — configured for Neon PostgreSQL
+db_url = settings.database_url
+connect_args = {}
+
+# Clean sslmode from connection url and pass to asyncpg connect_args
+if "sslmode=" in db_url:
+    if "?sslmode=" in db_url:
+        db_url = db_url.split("?sslmode=")[0]
+    elif "&sslmode=" in db_url:
+        parts = db_url.split("&")
+        db_url = "&".join([p for p in parts if not p.startswith("sslmode=")])
+    connect_args["ssl"] = True
+elif "neon.tech" in db_url:
+    # Force SSL for Neon hosts by default
+    connect_args["ssl"] = True
+
 engine = create_async_engine(
-    settings.database_url,
+    db_url,
     pool_size=settings.database_pool_size,
     max_overflow=settings.database_max_overflow,
     echo=settings.app_debug,
     pool_pre_ping=True,
+    connect_args=connect_args,
 )
 
 # Session factory

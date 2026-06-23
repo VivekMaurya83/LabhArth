@@ -130,7 +130,7 @@ User Query
          │
          ▼
 ┌──────────────────┐
-│ Query Embedding  │── Gemini text-embedding-004 (task_type=RETRIEVAL_QUERY)
+│ Query Embedding  │── Gemini gemini-embedding-001 (task_type=RETRIEVAL_QUERY, 768 dim)
 └────────┬─────────┘
          │
          ▼
@@ -155,7 +155,7 @@ User Query
 ```
 
 ### 3.2 Retrieval & Hybrid Search
-- **Embedding Model:** Gemini `text-embedding-004` (768 dimensions).
+- **Embedding Model:** Gemini `gemini-embedding-001` configured to 768 dimensions.
 - **Task Types:** `RETRIEVAL_DOCUMENT` used during ingestion, and `RETRIEVAL_QUERY` used for user queries to enhance matching relevance.
 - **Hybrid Search:** Queries are mapped to a vector similarity search combined with hard payload filtering (e.g., restricting results to schemes matching the user's `state` or central schemes where `state` is null, and filtering by category or chunk type depending on the user's search intent).
 
@@ -210,12 +210,12 @@ Government scheme data ingestion is built to parse, structure, chunk, embed, and
                            ┌──────▼──────┐ │           │
                            │ 5. EMBED    │ │           │
                            │ Gemini      │ │           │
-                           │ text-emb-004│ │           │
+                           │ gem-emb-001 │ │           │
                            └──────┬──────┘ │           │
                                   │        │           │
                            ┌──────▼──────┐ │           │
-                           │ 6. UPSERT   │ │           │
-                           │ Qdrant with │◄┘           │
+                           │ 6. UPSERT   │◄┘           │
+                           │ Qdrant with │             │
                            │ deterministic│            │
                            │ point IDs   │             │
                            └──────┬──────┘             │
@@ -232,7 +232,7 @@ Government scheme data ingestion is built to parse, structure, chunk, embed, and
 2. **Clean:** Normalize fields (e.g. state names, categories), validate formats, and deduplicate based on `(name, ministry, state)`.
 3. **Structure:** Extract structured eligibility criteria and document arrays into canonical JSONB format.
 4. **Chunk:** Split documents using section-based semantic chunking (`overview`, `eligibility`, `benefits`, `documents`, `application`, `combined`).
-5. **Embed:** Generate 768-dimension vectors for chunks using Gemini `text-embedding-004` (task_type=`RETRIEVAL_DOCUMENT`).
+5. **Embed:** Generate 768-dimension vectors for chunks using Gemini `gemini-embedding-001` (task_type=`RETRIEVAL_DOCUMENT`).
 6. **Upsert:** Write chunks into Qdrant using deterministic UUIDs generated via `uuid5` of `scheme_id + chunk_type + chunk_index` to make ingestion idempotent.
 7. **Audit:** Record execution metadata and chunk/point stats inside the `ingestion_runs` database table.
 

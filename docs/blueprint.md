@@ -59,7 +59,7 @@ India has **500+ central and state government welfare schemes**, but:
 | Data Source | [shrijayan/gov_myscheme](https://huggingface.co/datasets/shrijayan/gov_myscheme) (HuggingFace) | 723 structured government scheme PDFs from MyScheme.gov.in |
 | Agent Framework | Google ADK | Multi-agent orchestration |
 | LLM | Gemini 2.5 Flash | Reasoning & generation |
-| Embedding Model | Gemini text-embedding-004 | 768-dim vectors for semantic search |
+| Embedding Model | Gemini gemini-embedding-001 | 768-dim vectors for semantic search |
 | Tool Protocol | MCP | Standardized tool access |
 | Vector Store | Qdrant Cloud | Semantic search over scheme embeddings |
 | Database | PostgreSQL (Neon) | Structured data, chunk tracking, audit trail |
@@ -80,7 +80,7 @@ India has **500+ central and state government welfare schemes**, but:
 - [x] Multi-Agent Architecture — Four specialized agents with clear responsibilities
 - [x] MCP (Model Context Protocol) — Five MCP tools: search_schemes, get_scheme_details, check_eligibility, get_profile, save_profile
 - [x] Agent Skills — Each agent has defined skills and tool bindings
-- [x] Gemini Models — Gemini 2.5 Flash for reasoning, text-embedding-004 for embeddings
+- [x] Gemini Models — Gemini 2.5 Flash for reasoning, gemini-embedding-001 for embeddings
 - [x] Security — API key auth, rate limiting, input sanitization
 - [x] Deployability — Docker + Railway deployment pipeline
 - [x] Agentic RAG — PDF ingestion → section chunking → vector search → LLM reasoning pipeline
@@ -108,7 +108,7 @@ India has **500+ central and state government welfare schemes**, but:
 - Data ingestion pipeline (parse → clean → chunk → embed → index)
 
 ### Phase 2: RAG Pipeline
-- Embedding generation with Gemini text-embedding-004
+- Embedding generation with Gemini gemini-embedding-001
 - Qdrant retrieval with metadata filtering
 - Context formatting and LLM augmentation
 
