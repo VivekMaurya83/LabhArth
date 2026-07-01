@@ -246,7 +246,11 @@ async def process_single_scheme(
             logger.info(f"Successfully processed and indexed scheme: {name}")
 
 
-async def run_ingestion(limit: Optional[int] = None, skip_extraction: bool = False):
+async def run_ingestion(
+    limit: Optional[int] = None,
+    skip_extraction: bool = False,
+    worker_count: int = 2,
+):
     """
     Main ETL orchestration loop utilizing concurrent workers.
     """
@@ -301,8 +305,8 @@ async def run_ingestion(limit: Optional[int] = None, skip_extraction: bool = Fal
     }
 
     # Set concurrency limit (Semaphore)
-    # Using 5 parallel workers to balance rate-limits on Gemini APIs with high ingestion speed
-    sem = asyncio.Semaphore(5)
+    # Keep Gemini pressure low by default; override with --workers when needed.
+    sem = asyncio.Semaphore(max(1, worker_count))
 
     try:
         # Create asynchronous tasks for all files
@@ -372,6 +376,18 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="LabhArth AI — Ingestion Pipeline CLI")
     parser.add_argument("--limit", type=int, default=None, help="Limit number of schemes processed (for dry run).")
     parser.add_argument("--skip-extraction", action="store_true", help="Skip Gemini extraction and use placeholders (for quick debugging).")
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=2,
+        help="Number of concurrent schemes to process at once. Lower values reduce Gemini quota pressure.",
+    )
     args = parser.parse_args()
 
-    asyncio.run(run_ingestion(limit=args.limit, skip_extraction=args.skip_extraction))
+    asyncio.run(
+        run_ingestion(
+            limit=args.limit,
+            skip_extraction=args.skip_extraction,
+            worker_count=args.workers,
+        )
+    )

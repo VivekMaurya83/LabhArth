@@ -9,59 +9,55 @@ It classifies user intent and routes to the appropriate specialized agent.
 Google ADK Agent Type: Agent (with sub-agents)
 """
 
-from backend.utils.logger import logger
+from google.adk import Agent
+from backend.agents.profile_agent import profile_agent
+from backend.agents.scheme_search_agent import scheme_search_agent
+from backend.agents.eligibility_agent import eligibility_agent
+from backend.agents.callbacks import (
+    before_agent_callback,
+    after_agent_callback,
+    before_tool_callback,
+    after_tool_callback,
+    route_to_agent,
+)
 
-# Agent configuration — used when ADK is wired in
-ORCHESTRATOR_CONFIG = {
-    "name": "orchestrator_agent",
-    "model": "gemini-2.5-flash",
-    "description": "Root orchestrator that routes user queries to specialized agents.",
-    "instruction": """You are the LabhArth AI orchestrator. Your job is to help Indian citizens
-discover government welfare schemes, check their eligibility, and guide them through applications.
+orchestrator_agent = Agent(
+    name="orchestrator_agent",
+    model="gemini-2.5-flash",
+    description="Root orchestrator that routes user queries to specialized agents.",
+    instruction="""You are the LabhArth AI Orchestrator Agent. Your job is to guide Indian citizens
+through government welfare scheme discovery and eligibility evaluations.
 
-You have access to these specialized sub-agents:
-1. **Profile Agent** — Collects and manages user profile information
-2. **Scheme Search Agent** — Finds relevant government schemes
-3. **Eligibility Agent** — Checks if a user qualifies for a scheme
+You coordinate three sub-agents:
+1. **profile_agent** — extracts and stores user profile information (such as age, state, category, income, etc.) in the session state.
+2. **scheme_search_agent** — searches for relevant welfare schemes using the RAG index.
+3. **eligibility_agent** — runs the rule engine to determine if the user qualifies for the retrieved schemes.
 
-Routing rules:
-- If the user provides personal information (age, income, state, etc.) → Profile Agent
-- If the user asks about schemes, searches, or wants recommendations → Scheme Search Agent
-- If the user asks about eligibility or qualification → Eligibility Agent
-- For general questions, respond directly with helpful information
+You have access to:
+- route_to_agent(agent_name): Transfers execution control to a target sub-agent.
 
-Always be empathetic, clear, and supportive. Many users may have limited technical literacy.
-Respond in simple language. If the user seems to speak Hindi, respond in Hindi.""",
-    "sub_agents": [
-        "profile_agent",
-        "scheme_search_agent",
-        "eligibility_agent",
+Orchestration Workflow:
+- If the user provides personal demographic details (e.g. "I am a 20-year-old student from Maharashtra...") or answers a question about themselves → Call `route_to_agent` with 'profile_agent' to extract and update the profile in the session state.
+- Once the profile is updated or if the user asks for scheme recommendations → Call `route_to_agent` with 'scheme_search_agent' to run the similarity search queries.
+- Once matching schemes are found, or if the user asks if they qualify for a scheme → Call `route_to_agent` with 'eligibility_agent' to evaluate eligibility and explain results.
+- When the sub-agents complete their tasks and hand off control back to you, combine the retrieved schemes, their eligibility statuses, and required documents into a clear, cohesive, friendly, and structured final response for the citizen.
+""",
+    tools=[route_to_agent],
+    sub_agents=[
+        profile_agent,
+        scheme_search_agent,
+        eligibility_agent,
     ],
-}
+    before_agent_callback=before_agent_callback,
+    after_agent_callback=after_agent_callback,
+    before_tool_callback=before_tool_callback,
+    after_tool_callback=after_tool_callback,
+)
 
 
 class OrchestratorAgent:
     """
-    Orchestrator Agent — entry point for all user conversations.
-
-    TODO: Replace with google.adk.Agent when implementing.
+    Legacy compatibility wrapper for OrchestratorAgent.
     """
-
     def __init__(self):
-        self.config = ORCHESTRATOR_CONFIG
-        logger.info("OrchestratorAgent initialized")
-
-    async def handle_message(self, message: str, session_id: str) -> str:
-        """
-        Process a user message and route to appropriate sub-agent.
-
-        Args:
-            message: User's natural language message
-            session_id: Conversation session ID
-
-        Returns:
-            Agent response text
-        """
-        logger.info(f"Orchestrator handling message: session={session_id}")
-        # TODO: Implement with Google ADK
-        return "LabhArth AI is being set up. Please check back soon!"
+        self.agent = orchestrator_agent

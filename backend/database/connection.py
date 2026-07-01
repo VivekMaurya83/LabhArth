@@ -26,6 +26,9 @@ elif "neon.tech" in db_url:
     # Force SSL for Neon hosts by default
     connect_args["ssl"] = True
 
+# Disable prepared statement cache for compatibility with Neon connection pooler
+connect_args["statement_cache_size"] = 0
+
 engine = create_async_engine(
     db_url,
     pool_size=settings.database_pool_size,

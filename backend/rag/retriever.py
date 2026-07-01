@@ -32,13 +32,14 @@ class QdrantRetriever:
 
             url = self.settings.qdrant_url
             api_key = self.settings.qdrant_api_key
+            timeout = self.settings.rag_timeout_seconds
 
             if url and "localhost" not in url:
                 logger.info(f"Connecting to Qdrant Cloud cluster at {url[:30]}...")
-                self._client = AsyncQdrantClient(url=url, api_key=api_key)
+                self._client = AsyncQdrantClient(url=url, api_key=api_key, timeout=timeout)
             else:
                 logger.info("Connecting to local Qdrant instance at localhost:6333...")
-                self._client = AsyncQdrantClient(host="localhost", port=6333)
+                self._client = AsyncQdrantClient(host="localhost", port=6333, timeout=timeout)
         return self._client
 
     async def ensure_collection_exists(self) -> None:
@@ -87,7 +88,7 @@ class QdrantRetriever:
         filters: Optional[Dict[str, Any]] = None,
     ) -> List[Dict[str, Any]]:
         """
-        Search for similar documents in Qdrant.
+        Search for similar documents in Qdrant using direct HTTP REST API.
 
         Args:
             query_vector: Query embedding vector
@@ -98,10 +99,20 @@ class QdrantRetriever:
         Returns:
             List of matching documents with scores
         """
-        client = await self._get_client()
-        from qdrant_client.models import Filter, FieldCondition, MatchValue, MatchAny
+        import httpx
 
-        # Initialize filter conditions
+        # Build URL
+        url = self.settings.qdrant_url
+        endpoint = f"{url}/collections/{self.collection_name}/points/search"
+
+        # Headers
+        headers = {
+            "Content-Type": "application/json"
+        }
+        if self.settings.qdrant_api_key:
+            headers["api-key"] = self.settings.qdrant_api_key
+
+        # Build filter conditions
         conditions = []
 
         if filters:
@@ -110,21 +121,24 @@ class QdrantRetriever:
                 state_val = filters["state"]
                 if state_val:
                     conditions.append(
-                        FieldCondition(
-                            key="state",
-                            match=MatchAny(any=[state_val, None])
-                        )
+                        {
+                            "should": [
+                                {"key": "state", "match": {"value": state_val}},
+                                {"is_empty": {"key": "state"}}
+                            ]
+                        }
                     )
             
             # Handle category filter
             if "category" in filters:
                 category_val = filters["category"]
                 if category_val:
+                    # Convert to lowercase to match payloads in Qdrant (which are lowercased)
                     conditions.append(
-                        FieldCondition(
-                            key="category",
-                            match=MatchValue(value=category_val)
-                        )
+                        {
+                            "key": "category",
+                            "match": {"value": category_val.lower()}
+                        }
                     )
             
             # Handle chunk type filter
@@ -133,48 +147,82 @@ class QdrantRetriever:
                 if chunk_type_val:
                     if isinstance(chunk_type_val, list):
                         conditions.append(
-                            FieldCondition(
-                                key="chunk_type",
-                                match=MatchAny(any=chunk_type_val)
-                            )
+                            {
+                                "key": "chunk_type",
+                                "match": {"any": chunk_type_val}
+                            }
                         )
                     else:
                         conditions.append(
-                            FieldCondition(
-                                key="chunk_type",
-                                match=MatchValue(value=chunk_type_val)
-                            )
+                            {
+                                "key": "chunk_type",
+                                "match": {"value": chunk_type_val}
+                            }
                         )
 
-            # Handle explicit scheme_id scoping (e.g. eligibility agent checks)
+            # Handle level filter (State vs Central)
+            if "level" in filters:
+                level_val = filters["level"]
+                if level_val:
+                    conditions.append(
+                        {
+                            "key": "level",
+                            "match": {"value": level_val.lower()}
+                        }
+                    )
+
+            # Handle ministry filter
+            if "ministry" in filters:
+                ministry_val = filters["ministry"]
+                if ministry_val:
+                    conditions.append(
+                        {
+                            "key": "ministry",
+                            "match": {"value": ministry_val}
+                        }
+                    )
+
+            # Handle explicit scheme_id scoping
             if "scheme_id" in filters:
                 scheme_id_val = filters["scheme_id"]
                 if scheme_id_val:
                     conditions.append(
-                        FieldCondition(
-                            key="scheme_id",
-                            match=MatchValue(value=str(scheme_id_val))
-                        )
+                        {
+                            "key": "scheme_id",
+                            "match": {"value": str(scheme_id_val)}
+                        }
                     )
 
-        qdrant_filter = Filter(must=conditions) if conditions else None
+        qdrant_filter = {"must": conditions} if conditions else None
+
+        # Build payload
+        payload = {
+            "vector": query_vector,
+            "limit": limit,
+            "score_threshold": score_threshold,
+            "with_payload": True
+        }
+        if qdrant_filter:
+            payload["filter"] = qdrant_filter
 
         try:
-            logger.info(f"Querying Qdrant similarity search (limit={limit}, threshold={score_threshold})...")
-            search_results = await client.search(
-                collection_name=self.collection_name,
-                query_vector=query_vector,
-                query_filter=qdrant_filter,
-                limit=limit,
-                score_threshold=score_threshold
-            )
+            logger.info(f"Querying Qdrant similarity search via HTTP (limit={limit}, threshold={score_threshold})...")
+            
+            async with httpx.AsyncClient(http2=False, timeout=self.settings.rag_timeout_seconds) as http_client:
+                response = await http_client.post(endpoint, json=payload, headers=headers)
+                
+                if response.status_code != 200:
+                    raise RuntimeError(f"Qdrant REST API returned status code {response.status_code}: {response.text}")
+                
+                data = response.json()
+                search_results = data.get("result", [])
             
             formatted_results = []
             for hit in search_results:
                 formatted_results.append({
-                    "id": hit.id,
-                    "score": hit.score,
-                    "payload": hit.payload
+                    "id": hit.get("id"),
+                    "score": hit.get("score"),
+                    "payload": hit.get("payload", {})
                 })
             
             logger.info(f"Qdrant returned {len(formatted_results)} results.")

@@ -40,6 +40,13 @@ class Settings(BaseSettings):
         default="government_schemes", alias="QDRANT_COLLECTION_NAME"
     )
 
+    # --- RAG Retrieval ---
+    rag_top_k: int = Field(default=5, alias="RAG_TOP_K")
+    rag_similarity_threshold: float = Field(default=0.50, alias="RAG_SIMILARITY_THRESHOLD")
+    rag_embedding_model: str = Field(default="gemini-embedding-001", alias="RAG_EMBEDDING_MODEL")
+    rag_timeout_seconds: float = Field(default=10.0, alias="RAG_TIMEOUT_SECONDS")
+    rag_max_retries: int = Field(default=3, alias="RAG_MAX_RETRIES")
+
     # --- Security ---
     secret_key: str = Field(
         default="change-this-to-a-random-secret-key", alias="SECRET_KEY"

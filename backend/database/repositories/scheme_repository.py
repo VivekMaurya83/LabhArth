@@ -59,3 +59,50 @@ class SchemeRepository:
         self.session.add(scheme)
         await self.session.flush()
         return scheme
+
+    async def get_batch_by_ids(self, scheme_ids: list[UUID]) -> list[Scheme]:
+        """Fetch multiple schemes by their IDs, preloading their chunks."""
+        if not scheme_ids:
+            return []
+        from sqlalchemy.orm import selectinload
+        result = await self.session.execute(
+            select(Scheme)
+            .options(selectinload(Scheme.chunks))
+            .where(Scheme.id.in_(scheme_ids))
+        )
+        return list(result.scalars().all())
+
+    async def get_chunks_by_scheme_id(self, scheme_id: UUID) -> list:
+        """Fetch all chunks associated with a scheme ID."""
+        from backend.models.db_models import SchemeChunk
+        result = await self.session.execute(
+            select(SchemeChunk).where(SchemeChunk.scheme_id == scheme_id)
+        )
+        return list(result.scalars().all())
+
+    async def search_by_keyword(
+        self,
+        keyword: str,
+        category: Optional[str] = None,
+        state: Optional[str] = None,
+        level: Optional[str] = None,
+        limit: int = 10,
+    ) -> list[Scheme]:
+        """Search schemes by keyword in name or description."""
+        query = select(Scheme).where(Scheme.status == "active")
+        if keyword:
+            keyword_pattern = f"%{keyword}%"
+            query = query.where(
+                (Scheme.name.ilike(keyword_pattern)) | 
+                (Scheme.description.ilike(keyword_pattern))
+            )
+        if category:
+            query = query.where(Scheme.category == category)
+        if state:
+            from sqlalchemy import or_
+            query = query.where(or_(Scheme.state == state, Scheme.state.is_(None)))
+        if level:
+            query = query.where(Scheme.level == level)
+        query = query.limit(limit)
+        result = await self.session.execute(query)
+        return list(result.scalars().all())

@@ -12,6 +12,7 @@ from google import genai
 from google.genai import errors
 from google.genai import types
 
+from backend.utils.config import get_settings
 from backend.utils.logger import logger
 
 
@@ -45,13 +46,19 @@ class MultiKeyGeminiClient:
     def _create_client(self) -> genai.Client:
         """Create a genai Client using the current key index."""
         current_key = self.api_keys[self.current_key_idx]
+        import httpx
+        from google.genai import types
+        # Explicitly configure HTTP/1.1 to avoid HTTP/2 deadlocks inside python subprocesses
+        custom_async_client = httpx.AsyncClient(http2=False)
+        http_opts = types.HttpOptions(httpx_async_client=custom_async_client)
+
         if current_key:
             masked_key = f"...{current_key[-4:]}" if len(current_key) > 4 else "valid_key"
             logger.info(f"Initializing Gemini Client with key index {self.current_key_idx} ({masked_key})")
-            return genai.Client(api_key=current_key)
+            return genai.Client(api_key=current_key, http_options=http_opts)
         else:
             logger.info("Initializing Gemini Client with standard environment configurations.")
-            return genai.Client()
+            return genai.Client(http_options=http_opts)
 
     def rotate_key(self) -> bool:
         """Rotates the client to the next key. Returns True if successfully rotated."""
@@ -61,6 +68,51 @@ class MultiKeyGeminiClient:
         self.current_key_idx = (self.current_key_idx + 1) % len(self.api_keys)
         self.client = self._create_client()
         return True
+
+    async def execute_async(self, method_path: str, *args, **kwargs) -> Any:
+        """
+        Executes an async method on the client (using client.aio) with automated key rotation on 429 errors.
+        """
+        import asyncio
+        max_attempts = len(self.api_keys) * 2
+        attempt = 0
+
+        while attempt < max_attempts:
+            try:
+                parts = method_path.split(".")
+                method = self.client.aio
+                for part in parts:
+                    method = getattr(method, part)
+
+                return await method(*args, **kwargs)
+
+            except Exception as exc:
+                err_msg = str(exc).lower()
+                is_quota_error = (
+                    "429" in err_msg or 
+                    "quota" in err_msg or 
+                    "exhausted" in err_msg or 
+                    "resource_exhausted" in err_msg
+                )
+
+                if is_quota_error:
+                    logger.warning(
+                        f"Quota exceeded on key index {self.current_key_idx} (Attempt {attempt+1}/{max_attempts}): {exc}"
+                    )
+                    attempt += 1
+                    
+                    if self.rotate_key():
+                        logger.info("Retrying API execution with the next rotated key...")
+                        continue
+                    else:
+                        wait_time = 30
+                        logger.warning(f"Single key pool active. Sleeping {wait_time} seconds before retrying...")
+                        await asyncio.sleep(wait_time)
+                else:
+                    logger.error(f"Unrecoverable Gemini API error: {exc}")
+                    raise exc
+
+        raise RuntimeError("All configured Gemini API keys have exhausted their quotas.")
 
     def execute(self, method_path: str, *args, **kwargs) -> Any:
         """
@@ -164,10 +216,7 @@ class EmbeddingService:
 
     async def embed_text(self, text: str) -> List[float]:
         """Generate embedding vector for a single text segment."""
-        # Use task_type=RETRIEVAL_DOCUMENT for document ingestion
-        import asyncio
-        response = await asyncio.to_thread(
-            self.pool.execute,
+        response = await self.pool.execute_async(
             "models.embed_content",
             model=self.model_name,
             contents=text,
@@ -178,15 +227,25 @@ class EmbeddingService:
         )
         return response.embeddings[0].values
 
+    async def embed_query(self, text: str) -> List[float]:
+        """Generate embedding vector optimized for a search query using task_type=RETRIEVAL_QUERY."""
+        response = await self.pool.execute_async(
+            "models.embed_content",
+            model=self.model_name,
+            contents=text,
+            config=types.EmbedContentConfig(
+                task_type="RETRIEVAL_QUERY",
+                output_dimensionality=768
+            )
+        )
+        return response.embeddings[0].values
+
     async def embed_batch(self, texts: List[str]) -> List[List[float]]:
         """Generate embedding vectors for a batch of text segments."""
         if not texts:
             return []
         
-        # models.embed_content accepts lists of strings
-        import asyncio
-        response = await asyncio.to_thread(
-            self.pool.execute,
+        response = await self.pool.execute_async(
             "models.embed_content",
             model=self.model_name,
             contents=texts,
@@ -203,8 +262,8 @@ class ExtractionService:
     Parses unstructured text fields into structured Pydantic Schemas using Gemini.
     """
 
-    def __init__(self, model_name: str = "gemini-2.5-flash", delay_seconds: int = 10):
-        self.model_name = model_name
+    def __init__(self, model_name: Optional[str] = None, delay_seconds: int = 10):
+        self.model_name = model_name or get_settings().gemini_model
         self.delay_seconds = delay_seconds
         self.pool = MultiKeyGeminiClient()
         logger.info(f"ExtractionService initialized with model: {self.model_name}, delay: {delay_seconds}s")
