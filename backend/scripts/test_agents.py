@@ -65,24 +65,7 @@ async def run_query(runner: Runner, query: str, session_id: str):
 def select_all_valid_api_keys() -> list[str]:
     raw_keys = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEYS") or ""
     keys = [k.strip() for k in raw_keys.split(",") if k.strip()]
-    if not keys:
-        return []
-        
-    print(f"Validating {len(keys)} Gemini API Keys...")
-    from google.genai import Client
-    valid_keys = []
-    for idx, key in enumerate(keys):
-        try:
-            client = Client(api_key=key)
-            client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents="Hello",
-            )
-            valid_keys.append(key)
-            print(f"  Key {idx + 1}/{len(keys)} ({key[:10]}...): VALID")
-        except Exception as e:
-            print(f"  Key {idx + 1}/{len(keys)} ({key[:10]}...): INVALID OR EXHAUSTED ({e})")
-    return valid_keys
+    return keys
 
 async def main():
     # Force UTF-8 stream encoding on standard output for Windows console compatibility
@@ -130,6 +113,9 @@ async def main():
             
             # Register mcp client session in helper so agent tools route calls through it
             register_mcp_client_session(session)
+            
+            from backend.agents.profile_agent import profile_agent
+            print("PROFILE_AGENT TOOLS:", [t.name if hasattr(t, "name") else t.__name__ for t in profile_agent.tools])
             
             # 3. Setup ADK Agent Runner
             session_service = InMemorySessionService()

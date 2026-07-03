@@ -1,16 +1,10 @@
 .chat-page {
-  height: calc(100vh - 160px);
   display: flex;
   flex-direction: column;
 }
 
-.chat-error {
-  margin-top: var(--space-md);
-  padding: var(--space-md);
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: var(--radius-md);
-  color: var(--color-error);
-  font-size: var(--font-size-sm);
-  text-align: center;
+.chat-container {
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
 }

@@ -20,54 +20,35 @@ from backend.agents.callbacks import (
 )
 
 from typing import Optional
+from pydantic import BaseModel, Field
+
+class UserProfile(BaseModel):
+    age: Optional[int] = Field(None, description="Age in years")
+    gender: Optional[str] = Field(None, description="Gender (e.g., Male, Female)")
+    state: Optional[str] = Field(None, description="State of residence (e.g., Maharashtra, Karnataka, Gujarat)")
+    category: Optional[str] = Field(None, description="Social category (General/SC/ST/OBC)")
+    income_annual: Optional[float] = Field(None, description="Annual family income in INR")
+    occupation: Optional[str] = Field(None, description="Occupation of the citizen")
+    is_bpl: Optional[bool] = Field(None, description="True if below poverty line")
+    is_farmer: Optional[bool] = Field(None, description="True if a farmer")
+    is_student: Optional[bool] = Field(None, description="True if a student")
 
 def save_profile(
     tool_context: ToolContext,
-    age: int = -1,
-    gender: str = "",
-    state: str = "",
-    category: str = "",
-    income_annual: float = -1.0,
-    occupation: str = "",
-    is_bpl: bool = False,
-    is_farmer: bool = False,
-    is_student: bool = False,
-    annual_income: float = -1.0
+    profile: UserProfile
 ) -> str:
     """
     Save or update the user's profile details in the persistent session state.
 
     Args:
         tool_context: The execution context injected by ADK.
-        age: Age of the citizen in years (integer)
-        gender: Gender of the citizen (e.g. 'Male', 'Female')
-        state: State of residence (e.g. 'Maharashtra', 'Gujarat', 'Karnataka')
-        category: Social category (e.g. 'General', 'SC', 'ST', 'OBC')
-        income_annual: Annual income of the family in INR (float)
-        occupation: Occupation of the citizen
-        is_bpl: Whether the citizen is below poverty line (boolean)
-        is_farmer: Whether the citizen is a farmer (boolean)
-        is_student: Whether the citizen is a student (boolean)
-        annual_income: Alias for income_annual (annual family income in INR)
+        profile: The user profile object containing citizen demographic details.
     """
     if "profile" not in tool_context.session.state:
         tool_context.session.state["profile"] = {}
     
-    updates = {}
-    if age != -1: updates["age"] = int(age)
-    if gender != "": updates["gender"] = gender
-    if state != "": updates["state"] = state
-    if category != "": updates["category"] = category
-    
-    income = income_annual if income_annual != -1.0 else annual_income
-    if income != -1.0: updates["income_annual"] = float(income)
-    
-    if occupation != "": updates["occupation"] = occupation
-    if is_bpl is not False: updates["is_bpl"] = bool(is_bpl)
-    if is_farmer is not False: updates["is_farmer"] = bool(is_farmer)
-    if is_student is not False: updates["is_student"] = bool(is_student)
-    
-    tool_context.session.state["profile"].update(updates)
+    profile_dict = profile.model_dump(exclude_none=True)
+    tool_context.session.state["profile"].update(profile_dict)
     return f"Profile updated successfully. Current profile: {tool_context.session.state['profile']}"
 
 def get_profile(tool_context: ToolContext) -> dict:
@@ -79,7 +60,7 @@ def get_profile(tool_context: ToolContext) -> dict:
 
 profile_agent = Agent(
     name="profile_agent",
-    model="gemini-2.5-flash",
+    model="gemini-3.1-flash-lite",
     description="Extracts and manages citizen profile information for eligibility checks.",
     instruction="""You are the Profile Agent for LabhArth AI. Your job is to extract 
 and manage user profile information needed for government scheme eligibility checks.
@@ -93,7 +74,7 @@ Instructions:
 1. Examine the user's input and conversation history to extract demographic/socioeconomic parameters.
 2. Call the `save_profile` tool immediately with whatever fields are extracted (e.g., state, occupation, is_student, is_farmer).
 3. Do not halt or ask the user for missing details; proceed immediately with whatever information is available.
-4. Present a summary of the saved profile, and then call the `return_to_orchestrator` tool to hand control back to the Orchestrator.
+4. Present a summary of the saved profile, and then call the `return_to_orchestrator` tool to hand control back. Do NOT output any system or transition comments like 'I am returning control' or 'Handoff initiated'. Just show the profile facts and run the tool.
 """,
     tools=[save_profile, get_profile, return_to_orchestrator],
     before_agent_callback=before_agent_callback,

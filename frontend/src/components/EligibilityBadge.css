@@ -1,0 +1,41 @@
+.eligibility-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: fit-content;
+}
+
+.eligibility-badge-icon {
+  flex-shrink: 0;
+}
+
+/* Status variations with soft backgrounds and high-contrast text */
+.eligibility-badge--success {
+  background: rgba(34, 197, 150, 0.1);
+  color: #059669; /* Emerald/Green dark */
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.eligibility-badge--warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: #D97706; /* Saffron/Amber dark */
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.eligibility-badge--danger {
+  background: rgba(239, 68, 68, 0.08);
+  color: #DC2626; /* Red dark */
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.eligibility-badge--neutral {
+  background: rgba(148, 163, 184, 0.1);
+  color: #475569;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}

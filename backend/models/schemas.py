@@ -6,7 +6,7 @@ These are the data contracts between frontend and backend.
 """
 
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Any
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -41,7 +41,7 @@ class ChatResponse(BaseModel):
 class SchemeSearchRequest(BaseModel):
     """Request to search for government schemes."""
 
-    query: str = Field(..., min_length=1, max_length=500, description="Search query")
+    query: str = Field(default="", max_length=500, description="Search query")
     category: Optional[str] = Field(None, description="Filter by category")
     state: Optional[str] = Field(None, description="Filter by state")
     limit: int = Field(default=10, ge=1, le=50, description="Maximum results to return")
@@ -79,7 +79,7 @@ class SchemeDetailResponse(BaseModel):
     state: Optional[str] = None
     eligibility_criteria: Optional[dict] = None
     benefits: Optional[str] = None
-    required_documents: Optional[list[str]] = None
+    required_documents: Optional[list[Any]] = None
     application_process: Optional[str] = None
     official_url: Optional[str] = None
     status: Optional[str] = None
@@ -132,9 +132,19 @@ class EligibilityResponse(BaseModel):
 # =============================================================================
 
 
-class HealthResponse(BaseModel):
-    """Health check response."""
+class ComponentStatus(BaseModel):
+    """Status details for a single system component."""
 
-    status: str = "healthy"
+    status: str = Field(..., description="Component status: healthy or unhealthy")
+    message: Optional[str] = Field(None, description="Detailed status message or error details")
+    latency_ms: Optional[float] = Field(None, description="Component query latency in milliseconds")
+
+
+class HealthResponse(BaseModel):
+    """Health check response containing environment details and component statuses."""
+
+    status: str = Field(..., description="Overall system health status: healthy or unhealthy")
     version: str = "0.1.0"
     environment: str = "development"
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    components: dict[str, ComponentStatus] = Field(..., description="Detailed status of individual components")

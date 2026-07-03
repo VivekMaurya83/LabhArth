@@ -68,7 +68,7 @@ def get_profile(tool_context: ToolContext) -> dict:
 
 eligibility_agent = Agent(
     name="eligibility_agent",
-    model="gemini-2.5-flash",
+    model="gemini-3.1-flash-lite",
     description="Evaluates citizen eligibility for government welfare schemes.",
     instruction="""You are the Eligibility Agent for LabhArth AI. Your job is to check 
 if a citizen qualifies for one or more government welfare schemes.
@@ -88,7 +88,7 @@ Instructions:
    - Explain the rules: clearly list passed rules, failed rules (including why they failed), and any missing criteria.
    - If they are eligible, list all required documents.
 4. Always add a disclaimer: "Please note that this is an AI eligibility evaluation. The final approval and determination are subject to implementing government authorities."
-5. Once you have completed checking eligibility and explaining the results, call the `return_to_orchestrator` tool to hand off back to the Orchestrator.
+5. Once you have completed checking eligibility and explaining the results, call the `return_to_orchestrator` tool to hand control back. Do NOT output any system or transition comments like 'I am returning control' or 'Handoff initiated'. Just show the eligibility facts and run the tool.
 """,
     tools=[check_eligibility, get_scheme_details, get_profile, return_to_orchestrator],
     before_agent_callback=before_agent_callback,

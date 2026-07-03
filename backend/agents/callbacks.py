@@ -21,7 +21,7 @@ async def before_agent_callback(*args, **kwargs):
         return
 
     # 1. Rotate API keys to distribute load across quota pools
-    raw_keys = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEYS") or ""
+    raw_keys = os.getenv("GEMINI_API_KEYS") or os.getenv("GOOGLE_API_KEY") or ""
     keys = [k.strip() for k in raw_keys.split(",") if k.strip()]
     if keys:
         # Increment index first so sub-agent uses a different key than parent/root run
@@ -31,9 +31,9 @@ async def before_agent_callback(*args, **kwargs):
         os.environ["GOOGLE_API_KEY"] = key
         logger.info(f"Rotated environment for '{context.agent_name if context else 'Agent'}' to API Key: {key[:10]}...")
 
-    # 2. Apply a strict 6-second rate limit buffer between agent runs
-    logger.info("Applying rate-limiting delay (6s) to safeguard free-tier quota...")
-    await asyncio.sleep(6.0)
+    # 2. Apply a strict 0.2-second rate limit buffer between agent runs
+    logger.info("Applying rate-limiting delay (0.2s) to safeguard free-tier quota...")
+    await asyncio.sleep(0.2)
 
     if "start_times" not in context.state:
         context.state["start_times"] = {}
@@ -68,61 +68,40 @@ def after_agent_callback(*args, **kwargs):
     logger.info(f"[AGENT END] Agent '{context.agent_name}' Finished{elapsed_str}\n============================================================")
 
 def before_tool_callback(*args, **kwargs):
-    tool = None
-    arguments = {}
-    context = None
-    
-    if len(args) >= 3:
-        tool = args[0]
-        arguments = args[1]
-        context = args[2]
-    else:
-        tool = kwargs.get("tool") or kwargs.get("callback_tool")
-        arguments = kwargs.get("arguments") or kwargs.get("callback_arguments") or {}
-        context = kwargs.get("context") or kwargs.get("callback_context")
-        
-        if not tool and len(args) > 0:
-            tool = args[0]
-        if not arguments and len(args) > 1:
-            arguments = args[1]
-        if not context and len(args) > 2:
-            context = args[2]
+    tool = kwargs.get("tool") or (args[0] if len(args) > 0 else None)
+    arguments = kwargs.get("args") or kwargs.get("arguments") or kwargs.get("callback_arguments") or (args[1] if len(args) > 1 else {})
+    context = kwargs.get("tool_context") or kwargs.get("context") or kwargs.get("callback_context") or (args[2] if len(args) > 2 else None)
 
     agent_name = context.agent_name if context else "Unknown"
     tool_name = tool.name if tool else "Unknown"
+    
+    # Store start time if context state is available
+    if context and hasattr(context, "state") and isinstance(context.state, dict):
+        if "tool_start_times" not in context.state:
+            context.state["tool_start_times"] = {}
+        context.state["tool_start_times"][tool_name] = time.perf_counter()
     
     logger.info(f"  --> [TOOL CALL] Agent '{agent_name}' invoking tool '{tool_name}'")
     logger.info(f"      Arguments: {arguments}")
 
 def after_tool_callback(*args, **kwargs):
-    tool = None
-    arguments = {}
-    context = None
-    result = None
-    
-    if len(args) >= 4:
-        tool = args[0]
-        arguments = args[1]
-        context = args[2]
-        result = args[3]
-    else:
-        tool = kwargs.get("tool") or kwargs.get("callback_tool")
-        arguments = kwargs.get("arguments") or kwargs.get("callback_arguments") or {}
-        context = kwargs.get("context") or kwargs.get("callback_context")
-        result = kwargs.get("result") or kwargs.get("callback_result")
-        
-        if not tool and len(args) > 0:
-            tool = args[0]
-        if not arguments and len(args) > 1:
-            arguments = args[1]
-        if not context and len(args) > 2:
-            context = args[2]
-        if not result and len(args) > 3:
-            result = args[3]
+    tool = kwargs.get("tool") or (args[0] if len(args) > 0 else None)
+    arguments = kwargs.get("args") or kwargs.get("arguments") or kwargs.get("callback_arguments") or (args[1] if len(args) > 1 else {})
+    context = kwargs.get("tool_context") or kwargs.get("context") or kwargs.get("callback_context") or (args[2] if len(args) > 2 else None)
+    result = kwargs.get("tool_response") or kwargs.get("result") or kwargs.get("callback_result") or (args[3] if len(args) > 3 else None)
 
     tool_name = tool.name if tool else "Unknown"
     
-    logger.info(f"  <-- [TOOL RESPONSE] Tool '{tool_name}' returned successfully")
+    # Measure tool execution duration
+    elapsed_str = ""
+    if context and hasattr(context, "state") and isinstance(context.state, dict):
+        tool_start_times = context.state.get("tool_start_times", {})
+        start_time = tool_start_times.get(tool_name)
+        if start_time:
+            duration_ms = (time.perf_counter() - start_time) * 1000.0
+            elapsed_str = f" in {duration_ms:.2f}ms"
+    
+    logger.info(f"  <-- [TOOL RESPONSE] Tool '{tool_name}' returned successfully{elapsed_str}")
     res_str = str(result)
     if len(res_str) > 300:
         res_str = res_str[:300] + "... [truncated]"

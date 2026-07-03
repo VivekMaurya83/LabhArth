@@ -23,7 +23,7 @@ class Settings(BaseSettings):
 
     # --- Google / Gemini ---
     google_api_key: str = Field(default="", alias="GOOGLE_API_KEY")
-    gemini_model: str = Field(default="gemini-2.5-flash", alias="GEMINI_MODEL")
+    gemini_model: str = Field(default="gemini-3.1-flash-lite", alias="GEMINI_MODEL")
 
     # --- PostgreSQL (Neon) ---
     database_url: str = Field(

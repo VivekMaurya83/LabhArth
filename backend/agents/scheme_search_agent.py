@@ -69,7 +69,7 @@ def get_profile(tool_context: ToolContext) -> dict:
 
 scheme_search_agent = Agent(
     name="scheme_search_agent",
-    model="gemini-2.5-flash",
+    model="gemini-3.1-flash-lite",
     description="Searches and discovers government welfare schemes using semantic search.",
     instruction="""You are the Scheme Search Agent for LabhArth AI. Your job is to find 
 relevant government welfare schemes for Indian citizens.
@@ -84,9 +84,9 @@ Instructions:
 1. First, retrieve the user's profile details using `get_profile` to check if there are any specific profile attributes available (e.g., state, category, occupation).
 2. Run search queries using the `search_schemes` tool. Make sure to apply state and category filters if they are present in the user profile (e.g. state='Maharashtra' if the profile says Maharashtra).
 3. If search_schemes returns matching schemes, present them to the user. For each matching scheme:
-   - Print its Name, ID (UUID), and a brief description/benefit.
-4. If the user asks for detailed information about a specific scheme, call `get_scheme_details` with the scheme ID and summarize the benefits, application process, and requirements.
-5. Once you have shown the matching schemes or details, call the `return_to_orchestrator` tool to hand off back to the Orchestrator.
+   - Print its Name (bolded) and a brief description/benefit. DO NOT print any raw database IDs or UUIDs of the schemes in your text.
+4. If the user asks for detailed information about a specific scheme, call `get_scheme_details` with the scheme name or identifier and summarize the benefits, application process, and requirements.
+5. Once you have shown the matching schemes or details, call the `return_to_orchestrator` tool to hand control back. Do NOT output any system or transition comments like 'I am returning control' or 'Handoff initiated'. Just show the scheme facts and run the tool.
 """,
     tools=[search_schemes, get_scheme_details, get_profile, return_to_orchestrator],
     before_agent_callback=before_agent_callback,

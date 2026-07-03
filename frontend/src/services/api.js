@@ -3,7 +3,7 @@
  *
  * Centralized HTTP client for backend API communication.
  * All API calls go through this service for consistent
- * error handling, auth headers, and base URL management.
+ * error handling, base URL management, and request routing.
  */
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
@@ -27,7 +27,17 @@ async function apiRequest(endpoint, options = {}) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || `API error: ${response.status}`);
+      let errorMessage = `API error: ${response.status}`;
+      if (errorData.detail) {
+        if (typeof errorData.detail === 'string') {
+          errorMessage = errorData.detail;
+        } else if (Array.isArray(errorData.detail)) {
+          errorMessage = errorData.detail.map(err => `${err.loc.join('.')}: ${err.msg}`).join(', ');
+        } else if (typeof errorData.detail === 'object') {
+          errorMessage = JSON.stringify(errorData.detail);
+        }
+      }
+      throw new Error(errorMessage);
     }
 
     return await response.json();
@@ -41,18 +51,28 @@ async function apiRequest(endpoint, options = {}) {
  * Send a chat message to the AI assistant.
  */
 export async function sendChatMessage(message, sessionId = null) {
-  return apiRequest('/chat/', {
+  return apiRequest('/chat', {
     method: 'POST',
-    body: JSON.stringify({ message, session_id: sessionId }),
+    body: JSON.stringify({
+      message,
+      session_id: sessionId
+    }),
   });
 }
 
 /**
- * Search for government schemes.
+ * Search for government schemes via semantic search.
  */
-export async function searchSchemes(query, filters = {}) {
-  const params = new URLSearchParams({ query, ...filters });
-  return apiRequest(`/schemes/search?${params}`);
+export async function searchSchemes(query, filters = {}, limit = 10) {
+  return apiRequest('/search', {
+    method: 'POST',
+    body: JSON.stringify({
+      query: query || '',
+      category: filters.category || null,
+      state: filters.state || null,
+      limit: parseInt(limit, 10) || 10
+    })
+  });
 }
 
 /**
@@ -63,12 +83,39 @@ export async function getSchemeDetails(schemeId) {
 }
 
 /**
- * Check eligibility for a scheme.
+ * Check eligibility for a specific scheme.
  */
 export async function checkEligibility(schemeId, profile) {
+  // Normalize age and income_annual to numeric values
+  const normalizedProfile = {
+    ...profile,
+    age: profile.age ? parseInt(profile.age, 10) : null,
+    income_annual: profile.income_annual ? parseFloat(profile.income_annual) : null
+  };
+
   return apiRequest('/eligibility/check', {
     method: 'POST',
-    body: JSON.stringify({ scheme_id: schemeId, profile }),
+    body: JSON.stringify({
+      scheme_id: schemeId,
+      profile: normalizedProfile
+    }),
+  });
+}
+
+/**
+ * Check eligibility across multiple candidate schemes (bulk).
+ */
+export async function evaluateBulkEligibility(profile) {
+  // Normalize age and income_annual to numeric values
+  const normalizedProfile = {
+    ...profile,
+    age: profile.age ? parseInt(profile.age, 10) : null,
+    income_annual: profile.income_annual ? parseFloat(profile.income_annual) : null
+  };
+
+  return apiRequest('/eligibility', {
+    method: 'POST',
+    body: JSON.stringify(normalizedProfile),
   });
 }
 
@@ -84,5 +131,6 @@ export default {
   searchSchemes,
   getSchemeDetails,
   checkEligibility,
+  evaluateBulkEligibility,
   healthCheck,
 };

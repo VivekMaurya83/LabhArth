@@ -1,73 +1,100 @@
-/**
- * ChatWindow — Conversational AI interface component.
- *
- * Displays chat messages and provides input for user interaction.
- * Used on the Chat page with the useChat hook.
- */
-
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
+import { Trash2, Sparkles, MessageSquare, Shield } from 'lucide-react';
+import MessageBubble from './MessageBubble';
+import ChatInput from './ChatInput';
 import './ChatWindow.css';
 
-export default function ChatWindow({ messages, onSendMessage, isLoading }) {
-  const [input, setInput] = useState('');
+/**
+ * ChatWindow — Main assistant chat window interface.
+ *
+ * Employs clean vector icons and structures layout grids.
+ */
+export default function ChatWindow({ messages, onSendMessage, onClearChat, isLoading }) {
   const messagesEndRef = useRef(null);
 
   // Auto-scroll to latest message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (input.trim() && !isLoading) {
-      onSendMessage(input.trim());
-      setInput('');
-    }
-  };
+  }, [messages, isLoading]);
 
   return (
     <div className="chat-window" id="chat-window">
+      {/* Chat Header */}
+      <div className="chat-header">
+        <div className="chat-header-info">
+          <span className="chat-header-status">●</span>
+          <h3 className="chat-header-title">LabhArth Welfare Assistant</h3>
+        </div>
+        {messages.length > 0 && (
+          <button
+            type="button"
+            className="chat-clear-btn"
+            id="chat-clear"
+            onClick={onClearChat}
+            title="Clear conversation history"
+          >
+            <Trash2 size={13} className="clear-icon" />
+            <span>Clear History</span>
+          </button>
+        )}
+      </div>
+
+      {/* Messages Scroll Area */}
       <div className="chat-messages">
         {messages.length === 0 && (
           <div className="chat-welcome">
-            <span className="chat-welcome-icon">🇮🇳</span>
-            <h3>Welcome to LabhArth AI</h3>
-            <p>Ask me about government welfare schemes, eligibility, or required documents.</p>
+            <div className="chat-welcome-avatar">
+              <Sparkles size={32} className="chat-welcome-logo" />
+            </div>
+            <h3>Welfare Scheme Assistant</h3>
+            <p className="chat-welcome-subtitle">
+              Ask about eligibility criteria, required documents, or search for state and central government initiatives.
+            </p>
+            <div className="chat-welcome-tips">
+              <span className="tip-badge">
+                <Shield size={11} className="tip-badge-icon" />
+                <span>Example Inquiries</span>
+              </span>
+              <ul className="tip-list">
+                <li>
+                  <MessageSquare size={12} className="tip-icon" />
+                  <span>"What scholarship schemes exist for girl students in Maharashtra?"</span>
+                </li>
+                <li>
+                  <MessageSquare size={12} className="tip-icon" />
+                  <span>"Are there subsidies available for purchasing seeds or farming tools?"</span>
+                </li>
+                <li>
+                  <MessageSquare size={12} className="tip-icon" />
+                  <span>"Show me details for Mahatma Jyotirao Phule Jan Arogya Yojana."</span>
+                </li>
+              </ul>
+            </div>
           </div>
         )}
+
         {messages.map((msg) => (
-          <div key={msg.id} className={`chat-message chat-message--${msg.role}`}>
-            <div className="chat-message-content">{msg.content}</div>
-            {msg.agentName && (
-              <span className="chat-message-agent">via {msg.agentName}</span>
-            )}
-          </div>
+          <MessageBubble key={msg.id} message={msg} />
         ))}
+
         {isLoading && (
-          <div className="chat-message chat-message--assistant">
-            <div className="chat-typing">
-              <span></span><span></span><span></span>
+          <div className="chat-message-typing-bubble">
+            <div className="message-avatar">
+              <Sparkles size={16} className="ai-avatar-icon" />
+            </div>
+            <div className="chat-typing-container">
+              <span className="chat-typing-status">Consulting database & matching eligibility rules</span>
+              <div className="chat-typing">
+                <span></span><span></span><span></span>
+              </div>
             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      <form className="chat-input-form" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          className="chat-input"
-          id="chat-input"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask about government schemes..."
-          disabled={isLoading}
-          autoFocus
-        />
-        <button type="submit" className="chat-send-btn" id="chat-send" disabled={isLoading || !input.trim()}>
-          Send
-        </button>
-      </form>
+      {/* Input Form */}
+      <ChatInput onSendMessage={onSendMessage} disabled={isLoading} />
     </div>
   );
 }

@@ -1,13 +1,13 @@
+import { useState } from 'react';
+import { ShieldCheck } from 'lucide-react';
+import './EligibilityForm.css';
+
 /**
  * EligibilityForm — User profile input for eligibility checking.
  *
  * Collects demographic and socioeconomic information
  * needed to check scheme eligibility.
  */
-
-import { useState } from 'react';
-import './EligibilityForm.css';
-
 export default function EligibilityForm({ onSubmit, isLoading }) {
   const [profile, setProfile] = useState({
     age: '',
@@ -41,7 +41,7 @@ export default function EligibilityForm({ onSubmit, isLoading }) {
       <div className="form-grid">
         <div className="form-group">
           <label htmlFor="age">Age</label>
-          <input type="number" id="age" name="age" value={profile.age} onChange={handleChange} placeholder="25" />
+          <input type="number" id="age" name="age" value={profile.age} onChange={handleChange} placeholder="e.g. 25" />
         </div>
 
         <div className="form-group">
@@ -56,7 +56,7 @@ export default function EligibilityForm({ onSubmit, isLoading }) {
 
         <div className="form-group">
           <label htmlFor="state">State</label>
-          <input type="text" id="state" name="state" value={profile.state} onChange={handleChange} placeholder="e.g., Uttar Pradesh" />
+          <input type="text" id="state" name="state" value={profile.state} onChange={handleChange} placeholder="e.g. Maharashtra" />
         </div>
 
         <div className="form-group">
@@ -72,32 +72,33 @@ export default function EligibilityForm({ onSubmit, isLoading }) {
 
         <div className="form-group">
           <label htmlFor="income_annual">Annual Income (₹)</label>
-          <input type="number" id="income_annual" name="income_annual" value={profile.income_annual} onChange={handleChange} placeholder="200000" />
+          <input type="number" id="income_annual" name="income_annual" value={profile.income_annual} onChange={handleChange} placeholder="e.g. 200000" />
         </div>
 
         <div className="form-group">
           <label htmlFor="occupation">Occupation</label>
-          <input type="text" id="occupation" name="occupation" value={profile.occupation} onChange={handleChange} placeholder="e.g., Farmer" />
+          <input type="text" id="occupation" name="occupation" value={profile.occupation} onChange={handleChange} placeholder="e.g. Farmer" />
         </div>
       </div>
 
       <div className="form-checkboxes">
         <label className="checkbox-label">
           <input type="checkbox" name="is_bpl" checked={profile.is_bpl} onChange={handleChange} />
-          Below Poverty Line (BPL)
+          <span>Below Poverty Line (BPL)</span>
         </label>
         <label className="checkbox-label">
           <input type="checkbox" name="is_farmer" checked={profile.is_farmer} onChange={handleChange} />
-          Farmer
+          <span>Farmer</span>
         </label>
         <label className="checkbox-label">
           <input type="checkbox" name="is_student" checked={profile.is_student} onChange={handleChange} />
-          Student
+          <span>Student</span>
         </label>
       </div>
 
       <button type="submit" className="form-submit-btn" disabled={isLoading}>
-        {isLoading ? 'Checking...' : 'Check Eligibility'}
+        <ShieldCheck size={16} className="btn-icon" />
+        <span>{isLoading ? 'Checking...' : 'Check Eligibility'}</span>
       </button>
     </form>
   );

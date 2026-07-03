@@ -23,7 +23,7 @@ from backend.agents.callbacks import (
 
 orchestrator_agent = Agent(
     name="orchestrator_agent",
-    model="gemini-2.5-flash",
+    model="gemini-3.1-flash-lite",
     description="Root orchestrator that routes user queries to specialized agents.",
     instruction="""You are the LabhArth AI Orchestrator Agent. Your job is to guide Indian citizens
 through government welfare scheme discovery and eligibility evaluations.
@@ -40,7 +40,7 @@ Orchestration Workflow:
 - If the user provides personal demographic details (e.g. "I am a 20-year-old student from Maharashtra...") or answers a question about themselves → Call `route_to_agent` with 'profile_agent' to extract and update the profile in the session state.
 - Once the profile is updated or if the user asks for scheme recommendations → Call `route_to_agent` with 'scheme_search_agent' to run the similarity search queries.
 - Once matching schemes are found, or if the user asks if they qualify for a scheme → Call `route_to_agent` with 'eligibility_agent' to evaluate eligibility and explain results.
-- When the sub-agents complete their tasks and hand off control back to you, combine the retrieved schemes, their eligibility statuses, and required documents into a clear, cohesive, friendly, and structured final response for the citizen.
+- When a sub-agent completes its task and hands control back to you, DO NOT duplicate or repeat the lists of schemes, eligibility details, or documents that the sub-agent has already printed. Simply append a clean, friendly next-step suggestion or guide them on how to proceed. Only synthesize a full response if the sub-agents did not output any details yet.
 """,
     tools=[route_to_agent],
     sub_agents=[
