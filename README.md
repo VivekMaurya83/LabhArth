@@ -5,7 +5,7 @@
 [![System Status](https://img.shields.io/badge/status-active-emerald.svg)]()
 [![Platform Version](https://img.shields.io/badge/version-v1.0.0-blue.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-purple.svg)]()
-[![AI-Model](https://img.shields.io/badge/LLM-Gemini--2.5--Flash-orange.svg)]()
+[![AI-Model](https://img.shields.io/badge/LLM-Gemini--3.1--Flash--lite-orange.svg)]()
 [![Vector-DB](https://img.shields.io/badge/Vector--DB-Qdrant-red.svg)]()
 
 ---
