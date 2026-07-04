@@ -9,7 +9,6 @@ import time
 from typing import Any, List, Optional
 from pydantic import BaseModel, Field
 from google import genai
-from google.genai import errors
 from google.genai import types
 
 from backend.utils.config import get_settings

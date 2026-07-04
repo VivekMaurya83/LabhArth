@@ -87,7 +87,7 @@ async def run_tests():
             try:
                 res = await client.post("/api/v1/chat", json=chat_req)
                 print(f"Status Code: {res.status_code}")
-                print(f"Response Body:")
+                print("Response Body:")
                 print(json.dumps(res.json(), indent=2))
             except Exception as e:
                 print(f"Chat request failed: {e}")

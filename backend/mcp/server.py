@@ -34,26 +34,43 @@ sys.stdout = StdoutRedirector(sys.stdout)
 # Configure file logging for the MCP process to prevent standard streams
 # from filling buffers and deadlocking stdio communication.
 def configure_file_logging():
-    log_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../logs"))
-    os.makedirs(log_dir, exist_ok=True)
-    log_file = os.path.join(log_dir, "mcp_server.log")
+    import tempfile
+    
+    try:
+        log_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../logs"))
+        os.makedirs(log_dir, exist_ok=True)
+        log_file = os.path.join(log_dir, "mcp_server.log")
+        
+        # Test write permissions
+        test_file = os.path.join(log_dir, "permission_test.txt")
+        with open(test_file, "w", encoding="utf-8") as f:
+            f.write("test")
+        os.remove(test_file)
+    except Exception:
+        # Fall back to temp folder in read-only/permission-restricted container environments
+        log_dir = tempfile.gettempdir()
+        log_file = os.path.join(log_dir, "mcp_server.log")
 
     # Reconfigure loggers to write to file
-    file_handler = logging.FileHandler(log_file, encoding="utf-8")
-    file_handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter(
-        fmt="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-    file_handler.setFormatter(formatter)
-
-    # Reconfigure root and labharth loggers
-    for logger_name in ["", "labharth"]:
-        l = logging.getLogger(logger_name)
-        for handler in l.handlers[:]:
-            l.removeHandler(handler)
-        l.addHandler(file_handler)
-        l.setLevel(logging.INFO)
+    try:
+        file_handler = logging.FileHandler(log_file, encoding="utf-8")
+        file_handler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter(
+            fmt="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+        file_handler.setFormatter(formatter)
+    
+        # Reconfigure root and labharth loggers
+        for logger_name in ["", "labharth"]:
+            logger_instance = logging.getLogger(logger_name)
+            for handler in logger_instance.handlers[:]:
+                logger_instance.removeHandler(handler)
+            logger_instance.addHandler(file_handler)
+            logger_instance.setLevel(logging.INFO)
+    except Exception as e:
+        # Fallback to sys.stderr if even file logging to temp fails
+        sys.stderr.write(f"Failed to initialize file logger: {e}\n")
 
 configure_file_logging()
 

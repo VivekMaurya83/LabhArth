@@ -21,14 +21,9 @@
    - [API Quota Rotation & Resilience](#api-quota-rotation--resilience)
    - [Security Shield (Prompt Injection Protection)](#security-shield-prompt-injection-protection)
 5. [Directory Layout](#-directory-layout)
-6. [Local Deployment Guide](#-local-deployment-guide)
-   - [Prerequisites](#prerequisites)
-   - [Database Infrastructure Setup](#database-infrastructure-setup)
-   - [FastAPI Backend Service](#fastapi-backend-service)
-   - [Vite React Frontend SPA](#vite-react-frontend-spa)
-7. [Verification & Testing](#-verification--testing)
-   - [End-to-End Test Suite](#end-to-end-test-suite)
-   - [RAG Retrieval Metrics Evaluator](#rag-retrieval-metrics-evaluator)
+6. [Local Development Guide](#-local-development-guide)
+7. [Production Deployment Guide (Railway & Vercel)](DEPLOYMENT.md)
+8. [Verification & Testing](#-verification--testing)
 
 ---
 
@@ -42,9 +37,11 @@ Many eligible citizens miss out on government assistance due to complex legal ru
 
 *   🔍 **Natural Language Semantic Search:** Bypasses keyword constraints using vector embeddings of sitemap text to locate contextually relevant schemes.
 *   📋 **Deterministic Rule Checking:** Evaluates structured user profiles against multi-variable constraints (income caps, age thresholds, occupational fields, state boundaries) using a rule engine instead of relying on unreliable LLM inferences.
-*   🗂️ **Dynamic Document Checklists:** Translates scheme requirements into a custom-tailored document preparation list, detailing mandatory items, optional exemptions, and acceptable alternates.
+*   🗂️ **Interactive Document Checklists:** Translates scheme requirements into dynamic checkboxes that calculate readiness progress in real-time, persisting checked states in localStorage.
+*   🎙️ **Localized Voice-to-Text Input:** Features client-side Speech Recognition supporting Indian accent dialect models (`en-IN`) inside both the Search and Chat queries.
+*   💀 **Animated Shimmer Skeletons:** Renders cascading layout-aware placeholders during query retrieval, reducing perceived wait time.
 *   👥 **Multi-Agent Orchestration:** Spawns specialized agents for profile gathering, scheme catalog queries, and eligibility checks, coordinated by a central orchestrator.
-*   🌓 **Refactored Responsive Dashboard:** Features a clean web interface supporting full Light and Dark mode options, transitions, layout spacing, page routes, and staggered entry animations.
+*   🌓 **Refactored Responsive Dashboard:** Features a clean web interface supporting full Light and Dark mode options, transitions, 3D perspective tilts, page routes, and staggered entry animations.
 
 ---
 

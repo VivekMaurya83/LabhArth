@@ -15,6 +15,7 @@ export default function MessageBubble({ message }) {
   const handleCopy = () => {
     navigator.clipboard.writeText(content);
     setCopied(true);
+    window.dispatchEvent(new CustomEvent('show-toast', { detail: 'Copied message content to clipboard!' }));
     setTimeout(() => setCopied(false), 2000);
   };
 

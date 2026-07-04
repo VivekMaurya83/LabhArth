@@ -10,11 +10,13 @@ import './ChatWindow.css';
  * Employs clean vector icons and structures layout grids.
  */
 export default function ChatWindow({ messages, onSendMessage, onClearChat, isLoading }) {
-  const messagesEndRef = useRef(null);
+  const chatMessagesRef = useRef(null);
 
   // Auto-scroll to latest message
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (chatMessagesRef.current) {
+      chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
+    }
   }, [messages, isLoading]);
 
   return (
@@ -40,7 +42,7 @@ export default function ChatWindow({ messages, onSendMessage, onClearChat, isLoa
       </div>
 
       {/* Messages Scroll Area */}
-      <div className="chat-messages">
+      <div className="chat-messages" ref={chatMessagesRef}>
         {messages.length === 0 && (
           <div className="chat-welcome">
             <div className="chat-welcome-avatar">
@@ -56,15 +58,15 @@ export default function ChatWindow({ messages, onSendMessage, onClearChat, isLoa
                 <span>Example Inquiries</span>
               </span>
               <ul className="tip-list">
-                <li>
+                <li onClick={() => onSendMessage("What scholarship schemes exist for girl students in Maharashtra?")} className="tip-clickable-item">
                   <MessageSquare size={12} className="tip-icon" />
                   <span>"What scholarship schemes exist for girl students in Maharashtra?"</span>
                 </li>
-                <li>
+                <li onClick={() => onSendMessage("Are there subsidies available for purchasing seeds or farming tools?")} className="tip-clickable-item">
                   <MessageSquare size={12} className="tip-icon" />
                   <span>"Are there subsidies available for purchasing seeds or farming tools?"</span>
                 </li>
-                <li>
+                <li onClick={() => onSendMessage("Show me details for Mahatma Jyotirao Phule Jan Arogya Yojana.")} className="tip-clickable-item">
                   <MessageSquare size={12} className="tip-icon" />
                   <span>"Show me details for Mahatma Jyotirao Phule Jan Arogya Yojana."</span>
                 </li>
@@ -83,14 +85,13 @@ export default function ChatWindow({ messages, onSendMessage, onClearChat, isLoa
               <Sparkles size={16} className="ai-avatar-icon" />
             </div>
             <div className="chat-typing-container">
-              <span className="chat-typing-status">Consulting database & matching eligibility rules</span>
+              <span className="chat-typing-status">Scanning government scheme catalog...</span>
               <div className="chat-typing">
                 <span></span><span></span><span></span>
               </div>
             </div>
           </div>
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Input Form */}

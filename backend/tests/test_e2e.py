@@ -4,7 +4,6 @@ LabhArth AI — End-to-End (E2E) Integration Tests
 Uses httpx.AsyncClient to verify search, details, and chat routes.
 """
 
-import asyncio
 import unittest
 from httpx import AsyncClient, ASGITransport
 from backend.main import app

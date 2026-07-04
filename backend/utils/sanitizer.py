@@ -5,7 +5,7 @@ Clean and formatting-fix crawled data descriptions and text fields.
 """
 
 import re
-from typing import Any, Dict, List, Union
+from typing import Any
 
 def clean_text(text: str, is_description: bool = False, is_eligibility: bool = False) -> str:
     """Sanitize scraped text, remove layout scrapings, and fix encoding corruptions."""

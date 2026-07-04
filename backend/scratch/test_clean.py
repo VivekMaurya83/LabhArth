@@ -1,8 +1,6 @@
 import asyncio
-from uuid import UUID
 from backend.database.connection import init_db, async_session_factory
 from backend.database.repositories.scheme_repository import SchemeRepository
-from backend.utils.sanitizer import clean_text
 
 async def test():
     await init_db()

@@ -8,19 +8,19 @@
 }
 
 .document-item {
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--space-md);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-fast), var(--transition-theme);
   box-shadow: var(--shadow-sm);
 }
 
 .document-item:hover {
-  border-color: rgba(79, 70, 229, 0.2);
+  border-color: var(--color-primary-light);
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
@@ -70,10 +70,11 @@
 .document-item-alternatives {
   margin-top: var(--space-sm);
   padding-top: var(--space-xs);
-  border-top: 1px dashed #E2E8F0;
+  border-top: 1px dashed var(--color-border);
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
   font-style: italic;
+  transition: var(--transition-theme);
 }
 
 .document-list-empty {
@@ -81,3 +82,84 @@
   font-size: var(--font-size-sm);
   font-style: italic;
 }
+
+/* Document Preparation Tracker */
+.document-list-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  width: 100%;
+}
+
+.document-progress-container {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  transition: var(--transition-theme);
+}
+
+.document-progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--font-size-sm);
+}
+
+.progress-label {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.progress-status {
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+.document-progress-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: var(--color-bg);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  transition: var(--transition-theme);
+}
+
+.document-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  border-radius: var(--radius-full);
+  transition: width var(--transition-slow);
+}
+
+/* Checkbox specific styles */
+.checkbox-icon {
+  margin-right: 4px;
+  flex-shrink: 0;
+  transition: color var(--transition-fast);
+}
+
+.checkbox-icon--checked {
+  color: var(--color-secondary);
+}
+
+.checkbox-icon--unchecked {
+  color: var(--color-text-muted);
+}
+
+.document-item--checked {
+  border-color: var(--color-secondary);
+  background: rgba(16, 185, 129, 0.02);
+  opacity: 0.85;
+}
+
+.document-item--checked:hover {
+  border-color: var(--color-secondary-light);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
+}
+

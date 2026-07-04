@@ -55,3 +55,10 @@ htmlcov/
 
 # Data
 data/
+
+# Linting
+.ruff_cache/
+
+# Excluded Documentation
+docs/
+DEPLOYMENT.md

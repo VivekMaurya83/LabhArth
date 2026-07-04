@@ -8,7 +8,6 @@ Supports checkpoint resume and multi-key API rotation.
 
 import argparse
 import asyncio
-import os
 import sys
 import uuid
 from datetime import datetime
@@ -21,7 +20,7 @@ from sqlalchemy import select, func
 # Load environment variables first
 load_dotenv()
 
-from backend.database.connection import init_db, async_session_factory, engine
+from backend.database.connection import init_db, async_session_factory
 from backend.models.db_models import Scheme, SchemeChunk, IngestionRun
 from backend.rag.dataset_downloader import download_dataset
 from backend.rag.chunker import DocumentChunker, NAMESPACE_LABHARTH_STR

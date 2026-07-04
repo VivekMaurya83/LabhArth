@@ -7,8 +7,6 @@ and context relevance across target scheme queries.
 
 import asyncio
 import time
-from typing import List, Dict, Any
-from backend.services.retrieval_service import RetrievalService
 from backend.services.scheme_service import SchemeService
 
 # Test queries with expected metadata and scheme match markers
@@ -123,14 +121,14 @@ async def evaluate():
     duplicate_rate = (total_duplicates / total_retrieved * 100.0) if total_retrieved > 0 else 0.0
     
     print("\n### RAG Evaluation Metrics Summary")
-    print(f"| Metric | Value | Target |")
-    print(f"|---|---|---|")
+    print("| Metric | Value | Target |")
+    print("|---|---|---|")
     print(f"| Total Queries Evaluated | {total_queries} | - |")
     print(f"| Avg Query Latency | {avg_latency:.2f} ms | < 800 ms |")
     print(f"| Mean Precision@K | {avg_precision * 100:.1f}% | > 80% |")
     print(f"| Mean Recall@K | {avg_recall * 100:.1f}% | > 80% |")
     print(f"| Duplicate Retrieval Rate | {duplicate_rate:.1f}% | 0% |")
-    print(f"| Hallucination Detection Rate | 0.0% | 0% |")
+    print("| Hallucination Detection Rate | 0.0% | 0% |")
     print("\nDetailed Query Results:")
     for r in results:
         print(f"- Query: '{r['query']}' | Latency: {r['latency_ms']:.1f}ms | Precision: {r['precision']*100:.0f}% | Recall: {r['recall']*100:.0f}%")

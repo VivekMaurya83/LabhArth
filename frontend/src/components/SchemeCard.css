@@ -2,18 +2,18 @@
   display: flex;
   flex-direction: column;
   background: var(--color-bg-card);
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-xl); /* 16px */
   padding: var(--space-xl);
-  transition: all var(--transition-normal);
+  transition: all var(--transition-normal), border-color var(--transition-fast), var(--transition-theme);
   box-shadow: var(--shadow-sm);
   position: relative;
 }
 
 .scheme-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-color: rgba(79, 70, 229, 0.2);
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  border-color: var(--color-primary-light);
 }
 
 .scheme-card-header {
@@ -47,7 +47,7 @@
 
 .scheme-card-tag--category {
   background: rgba(16, 185, 129, 0.08);
-  color: var(--color-secondary-dark);
+  color: var(--color-secondary);
 }
 
 .scheme-card-title {
@@ -93,13 +93,14 @@
 }
 
 .scheme-card-benefits {
-  background: #F8FAFC;
+  background: var(--color-bg);
   border-radius: var(--radius-md);
   padding: var(--space-sm) var(--space-md);
   font-size: var(--font-size-sm);
   margin-bottom: var(--space-lg);
-  border: 1px solid #F1F5F9;
+  border: 1px solid var(--color-border);
   line-height: 1.5;
+  transition: var(--transition-theme);
 }
 
 .benefits-label {
@@ -118,10 +119,11 @@
   justify-content: space-between;
   align-items: center;
   margin-top: auto;
-  border-top: 1px solid #F1F5F9;
+  border-top: 1px solid var(--color-border);
   padding-top: var(--space-md);
   flex-wrap: wrap;
   gap: var(--space-sm);
+  transition: var(--transition-theme);
 }
 
 .scheme-card-footer .scheme-card-meta-item {
@@ -144,7 +146,7 @@
 }
 
 .scheme-card-link:hover .link-arrow-icon {
-  transform: translateX(3px);
+  transform: translateX(5px);
 }
 
 .link-arrow-icon {

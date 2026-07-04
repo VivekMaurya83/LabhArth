@@ -1,0 +1,46 @@
+.toast-notification {
+  position: fixed;
+  bottom: var(--space-xl);
+  right: var(--space-xl);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--color-primary-dark);
+  color: white;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-full);
+  box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.25), var(--shadow-lg);
+  border: 1px solid var(--color-primary-light);
+  pointer-events: auto;
+  max-width: 320px;
+}
+
+.toast-icon {
+  color: var(--color-secondary-light);
+  flex-shrink: 0;
+}
+
+.toast-message {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Dark mode adjustment for less harsh overlay borders */
+:root[data-theme='dark'] .toast-notification {
+  background: #1E1B4B; /* Deep indigo card background */
+  border-color: #312E81;
+}
+
+@media (max-width: 480px) {
+  .toast-notification {
+    bottom: var(--space-md);
+    right: var(--space-md);
+    left: var(--space-md);
+    max-width: none;
+    justify-content: center;
+  }
+}

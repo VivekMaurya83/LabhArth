@@ -180,7 +180,7 @@ export default function SchemeDetails() {
           {scheme.required_documents && scheme.required_documents.length > 0 && (
             <section className="scheme-section">
               <h2>Documents Required</h2>
-              <DocumentList documents={scheme.required_documents} />
+              <DocumentList documents={scheme.required_documents} schemeId={scheme.id} />
             </section>
           )}
 

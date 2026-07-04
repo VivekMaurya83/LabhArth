@@ -86,7 +86,7 @@ def before_tool_callback(*args, **kwargs):
 
 def after_tool_callback(*args, **kwargs):
     tool = kwargs.get("tool") or (args[0] if len(args) > 0 else None)
-    arguments = kwargs.get("args") or kwargs.get("arguments") or kwargs.get("callback_arguments") or (args[1] if len(args) > 1 else {})
+    _arguments = kwargs.get("args") or kwargs.get("arguments") or kwargs.get("callback_arguments") or (args[1] if len(args) > 1 else {})
     context = kwargs.get("tool_context") or kwargs.get("context") or kwargs.get("callback_context") or (args[2] if len(args) > 2 else None)
     result = kwargs.get("tool_response") or kwargs.get("result") or kwargs.get("callback_result") or (args[3] if len(args) > 3 else None)
 

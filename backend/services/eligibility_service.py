@@ -4,7 +4,7 @@ LabhArth AI — Eligibility Service
 Business logic for eligibility determination.
 """
 
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from backend.services.scheme_service import SchemeService
@@ -147,7 +147,7 @@ class EligibilityService:
             reasoning = f"User profile does not meet the eligibility requirements for '{scheme['name']}'."
         elif unresolved_rules:
             status = "Partially Eligible"
-            reasoning = f"User profile meets all provided criteria, but missing fields prevent complete evaluation."
+            reasoning = "User profile meets all provided criteria, but missing fields prevent complete evaluation."
         else:
             status = "Eligible"
             reasoning = f"User profile fully satisfies all eligibility requirements for '{scheme['name']}'."

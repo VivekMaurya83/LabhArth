@@ -1,0 +1,103 @@
+.skeleton-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  position: relative;
+  gap: var(--space-md);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-theme);
+  overflow: hidden;
+}
+
+/* Shimmer Keyframes and Class */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg) 25%,
+    var(--color-border) 37%,
+    var(--color-bg) 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmerAnim 1.6s ease-in-out infinite;
+}
+
+@keyframes shimmerAnim {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.skeleton-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skeleton-tags {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.skeleton-pill {
+  height: 20px;
+  border-radius: var(--radius-full);
+}
+
+.skeleton-pill--small {
+  width: 60px;
+}
+
+.skeleton-pill--medium {
+  width: 100px;
+}
+
+.skeleton-title {
+  height: 24px;
+  border-radius: var(--radius-sm);
+  width: 70%;
+  margin-bottom: var(--space-xs);
+}
+
+.skeleton-meta {
+  height: 16px;
+  border-radius: var(--radius-sm);
+  width: 40%;
+}
+
+.skeleton-desc {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.skeleton-text-line {
+  height: 14px;
+  border-radius: var(--radius-sm);
+  width: 100%;
+}
+
+.skeleton-text-line--short {
+  width: 85%;
+}
+
+.skeleton-benefits {
+  height: 38px;
+  border-radius: var(--radius-md);
+  width: 100%;
+}
+
+.skeleton-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-md);
+  margin-top: var(--space-sm);
+  transition: var(--transition-theme);
+}

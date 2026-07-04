@@ -7,7 +7,6 @@ Exposed as an MCP tool for agent consumption.
 
 import time
 from uuid import UUID
-from typing import Optional
 from backend.services.eligibility_service import EligibilityService
 from backend.utils.logger import logger
 

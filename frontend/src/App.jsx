@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import Toast from './components/Toast';
 import Home from './pages/Home';
 import Search from './pages/Search';
 import SchemeDetails from './pages/SchemeDetails';
@@ -64,6 +65,7 @@ function App() {
         </AnimatePresence>
       </main>
       <Footer />
+      <Toast />
     </div>
   );
 }
@@ -72,10 +74,10 @@ function App() {
 function PageWrapper({ children }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.2, ease: 'easeOut' }}
+      exit={{ opacity: 0, y: -12 }}
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', flex: 1 }}
     >
       {children}

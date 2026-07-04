@@ -12,9 +12,10 @@
   color: var(--color-text-primary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid #F1F5F9;
+  border-bottom: 1px solid var(--color-border);
   padding-bottom: var(--space-xs);
   margin-bottom: var(--space-xs);
+  transition: var(--transition-theme);
 }
 
 .form-grid {
@@ -39,18 +40,23 @@
 .form-group input,
 .form-group select {
   padding: var(--space-sm) var(--space-md);
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: #F8FAFC;
+  background: var(--color-bg);
   color: var(--color-text-primary);
   font-size: var(--font-size-sm);
-  transition: all var(--transition-fast);
+  transition: all var(--transition-fast), var(--transition-theme);
+}
+
+.form-group option {
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
 }
 
 .form-group input:focus,
 .form-group select:focus {
   border-color: var(--color-primary);
-  background: #FFFFFF;
+  background: var(--color-bg-card);
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
 }
 
@@ -74,9 +80,10 @@
   width: 16px;
   height: 16px;
   border-radius: var(--radius-sm);
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--color-border);
   cursor: pointer;
   accent-color: var(--color-primary);
+  transition: var(--transition-theme);
 }
 
 .form-submit-btn {
@@ -91,8 +98,10 @@
   font-weight: 700;
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-sm);
-  transition: all var(--transition-fast);
+  transition: all var(--transition-fast), var(--transition-theme);
   font-size: var(--font-size-sm);
+  cursor: pointer;
+  border: none;
 }
 
 .form-submit-btn:hover:not(:disabled) {

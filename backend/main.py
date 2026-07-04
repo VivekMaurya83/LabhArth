@@ -113,6 +113,10 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    # --- Response Compression Middleware ---
+    from fastapi.middleware.gzip import GZipMiddleware
+    app.add_middleware(GZipMiddleware, minimum_size=500)
+
     # --- Request Lifecycle Middleware ---
     from backend.api.middleware import RequestLifecycleMiddleware
     app.add_middleware(RequestLifecycleMiddleware)

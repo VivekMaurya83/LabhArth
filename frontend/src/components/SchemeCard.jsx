@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Building, MapPin, ArrowRight } from 'lucide-react';
 import EligibilityBadge from './EligibilityBadge';
@@ -6,12 +7,42 @@ import './SchemeCard.css';
 /**
  * SchemeCard — Displays summary information for a welfare scheme.
  *
- * Employs clean hierarchical sections for name, category tags, ministry, state,
- * benefits overview, and eligibility metrics.
+ * Employs clean hierarchical sections and 3D perspective hover tilts.
  */
 export default function SchemeCard({ scheme, eligibility }) {
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e) => {
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const xc = rect.width / 2;
+    const yc = rect.height / 2;
+    
+    const maxTilt = 4; // Subtler angle for wider scheme cards
+    const tiltX = -((y - yc) / yc) * maxTilt;
+    const tiltY = ((x - xc) / xc) * maxTilt;
+    
+    setTilt({ x: tiltX, y: tiltY });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 });
+  };
+
   return (
-    <div className="scheme-card" id={`scheme-card-${scheme.id}`}>
+    <div 
+      className="scheme-card" 
+      id={`scheme-card-${scheme.id}`}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+        transition: 'transform 0.15s ease-out, box-shadow var(--transition-fast), border-color var(--transition-fast)'
+      }}
+    >
       <div className="scheme-card-header">
         <div className="scheme-card-tags">
           <span className="scheme-card-tag scheme-card-tag--level">

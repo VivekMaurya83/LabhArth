@@ -73,6 +73,64 @@
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
 }
 
+.search-input-clear-btn {
+  position: absolute;
+  right: 44px;
+  /* Placed left of the mic icon */
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast);
+  padding: 2px;
+  z-index: 2;
+}
+
+.search-input-clear-btn:hover {
+  color: var(--color-text-primary);
+}
+
+.search-input-mic-btn {
+  position: absolute;
+  right: var(--space-md);
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  padding: var(--space-xs);
+  border-radius: var(--radius-full);
+  z-index: 2;
+}
+
+.search-input-mic-btn:hover {
+  color: var(--color-primary);
+  background: rgba(79, 70, 229, 0.08);
+}
+
+/* Listening Pulsing Recording State */
+.search-input-mic-btn--listening {
+  color: #EF4444 !important;
+  background: rgba(239, 68, 68, 0.1) !important;
+  animation: searchMicPulse 1.5s infinite alternate;
+}
+
+@keyframes searchMicPulse {
+  0% {
+    box-shadow: 0 0 0 0px rgba(239, 68, 68, 0.4);
+  }
+
+  100% {
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+}
+
 .search-btn {
   padding: var(--space-md) var(--space-2xl);
   background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
@@ -183,6 +241,14 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
+}
+
+.results-grid-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  /* Generous gap between scheme blocks */
+  width: 100%;
 }
 
 .results-header-row {
@@ -365,16 +431,16 @@
   .search-layout {
     flex-direction: column;
   }
-  
+
   .search-sidebar-checker {
     width: 100%;
     position: static;
   }
-  
+
   .search-bar-row {
     flex-direction: column;
   }
-  
+
   .search-btn {
     width: 100%;
     justify-content: center;

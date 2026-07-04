@@ -4,7 +4,7 @@ LabhArth AI — Authentication
 API key validation and security middleware.
 """
 
-from fastapi import Depends, HTTPException, Security, status
+from fastapi import HTTPException, Security, status
 from fastapi.security import APIKeyHeader
 
 from backend.utils.config import get_settings

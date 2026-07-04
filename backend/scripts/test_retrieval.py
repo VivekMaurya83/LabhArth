@@ -16,7 +16,6 @@ from sqlalchemy import select
 from backend.database.connection import async_session_factory
 from backend.models.db_models import Scheme
 from backend.services.retrieval_service import RetrievalService
-from backend.utils.logger import logger
 
 # Set logging level to WARNING for cleaner test output
 import logging

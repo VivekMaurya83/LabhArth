@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search as SearchIcon, ShieldCheck, FileText, RefreshCw, Filter } from 'lucide-react';
+import { Search as SearchIcon, ShieldCheck, FileText, RefreshCw, Filter, X, Mic } from 'lucide-react';
 import SchemeCard from '../components/SchemeCard';
 import EligibilityForm from '../components/EligibilityForm';
 import EligibilityBadge from '../components/EligibilityBadge';
 import LoadingSpinner from '../components/LoadingSpinner';
+import SkeletonCard from '../components/SkeletonCard';
 import ErrorBanner from '../components/ErrorBanner';
 import { searchSchemes, evaluateBulkEligibility } from '../services/api';
 import './Search.css';
@@ -54,6 +55,72 @@ export default function Search() {
   const [isLoading, setIsLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [error, setError] = useState(null);
+
+  // Voice speech recognition states
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+    };
+  }, []);
+
+  const startListening = () => {
+    if (!SpeechRecognition) {
+      window.dispatchEvent(new CustomEvent('show-toast', { detail: 'Speech input not supported on this browser.' }));
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-IN';
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      window.dispatchEvent(new CustomEvent('show-toast', { detail: 'Listening... Speak now.' }));
+    };
+
+    recognition.onerror = (e) => {
+      console.error('Speech recognition error', e);
+      setIsListening(false);
+      window.dispatchEvent(new CustomEvent('show-toast', { detail: 'Speech error. Try again.' }));
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      setQuery(prev => {
+        const spacing = prev.trim() ? ' ' : '';
+        return prev.trim() + spacing + transcript;
+      });
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+  };
+
+  const toggleListening = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  };
 
   // Eligibility evaluation states
   const [showEligibilityForm, setShowEligibilityForm] = useState(false);
@@ -159,9 +226,40 @@ export default function Search() {
               id="search-input"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Type keywords (e.g. 'education scholarships', 'farmer loans'...)"
+              placeholder={isListening ? 'Listening...' : "Type keywords (e.g. 'education scholarships', 'farmer loans'...)"}
               autoFocus
+              style={{ paddingRight: '76px' }}
+              disabled={isListening}
             />
+            <AnimatePresence>
+              {query && !isListening && (
+                <motion.button
+                  type="button"
+                  className="search-input-clear-btn"
+                  onClick={() => setQuery('')}
+                  aria-label="Clear search input"
+                  title="Clear search input"
+                  initial={{ scale: 0, rotate: -45, opacity: 0 }}
+                  animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                  exit={{ scale: 0, rotate: 45, opacity: 0 }}
+                  whileHover={{ scale: 1.15, rotate: 90 }}
+                  whileTap={{ scale: 0.85 }}
+                  transition={{ type: 'spring', stiffness: 350, damping: 18 }}
+                >
+                  <X size={16} />
+                </motion.button>
+              )}
+            </AnimatePresence>
+
+            <button
+              type="button"
+              className={`search-input-mic-btn ${isListening ? 'search-input-mic-btn--listening' : ''}`}
+              onClick={toggleListening}
+              title={isListening ? 'Stop listening' : 'Start voice input'}
+              aria-label={isListening ? 'Stop listening' : 'Start voice input'}
+            >
+              <Mic size={16} />
+            </button>
           </div>
           <button type="submit" className="search-btn" id="search-submit" disabled={isLoading}>
             <span>{isLoading ? 'Searching...' : 'Search'}</span>
@@ -228,7 +326,13 @@ export default function Search() {
       <div className="search-layout">
         {/* Results Listings */}
         <div className="search-listings-container">
-          {isLoading && <LoadingSpinner message="Retrieving schemes from knowledge base..." />}
+          {isLoading && (
+            <div className="results-grid-container">
+              <SkeletonCard />
+              <SkeletonCard />
+              <SkeletonCard />
+            </div>
+          )}
 
           {!isLoading && searched && results.length === 0 && (
             <div className="search-empty">

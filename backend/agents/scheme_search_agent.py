@@ -9,7 +9,6 @@ filtering to find the most relevant schemes for a user's query.
 Google ADK Agent Type: Agent (with MCP tools)
 """
 
-from typing import Optional
 from google.adk import Agent
 from google.adk.tools import ToolContext
 from backend.agents.callbacks import (

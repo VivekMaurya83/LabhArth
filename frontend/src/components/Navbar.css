@@ -76,14 +76,19 @@
   opacity: 1;
 }
 
-.navbar-link.active {
+.navbar-link.active:not(.navbar-link--cta) {
   color: var(--color-primary);
   background: rgba(79, 70, 229, 0.08);
 }
 
-.navbar-link.active .nav-icon {
+.navbar-link.active:not(.navbar-link--cta) .nav-icon {
   color: var(--color-primary);
   opacity: 1;
+}
+
+.navbar-link--cta.active {
+  box-shadow: var(--shadow-glow);
+  border: 1px solid var(--color-primary-light);
 }
 
 .navbar-link--cta {
