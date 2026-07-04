@@ -33,6 +33,14 @@ async def lifespan(app: FastAPI):
     settings = get_settings()
     logger.info(f"🚀 Starting {settings.app_name} v0.1.0 [{settings.app_env}]")
 
+    # Log active CORS configuration during startup
+    allow_origins = [origin for origin in settings.allowed_origins_list if origin.strip()]
+    allow_credentials = True
+    if "*" in allow_origins or not allow_origins:
+        allow_origins = ["*"]
+        allow_credentials = False
+    logger.info(f"CORS Allowed Origins: {allow_origins} (Credentials: {allow_credentials})")
+
     # Startup: initialize connections
     from backend.database.connection import init_db
     try:
