@@ -31,7 +31,8 @@ class RequestLifecycleMiddleware(BaseHTTPMiddleware):
 
         # 3. Log incoming request
         logger.info(
-            f"--> [{request_id}] {request.method} {request.url.path} "
+            f"--> [{request_id}] {request.method} {request.url.path} | "
+            f"Headers: {dict(request.headers)} | "
             f"Params: {dict(request.query_params)}"
         )
 
