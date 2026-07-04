@@ -19,7 +19,7 @@ EXPOSE 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-    CMD python -c "import httpx; httpx.get('http://localhost:8000/api/v1/health')"
+    CMD python -c "import os, httpx; port = os.getenv('PORT', '8000'); httpx.get(f'http://localhost:{port}/api/v1/health')"
 
 # Run the application
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "backend.main"]
