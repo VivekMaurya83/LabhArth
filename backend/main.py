@@ -111,6 +111,8 @@ def create_app() -> FastAPI:
         allow_origins = ["*"]
         allow_credentials = False
 
+    logger.info(f"CORS Allowed Origins: {allow_origins} (Credentials: {allow_credentials})")
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allow_origins,
