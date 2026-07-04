@@ -52,7 +52,7 @@ class Settings(BaseSettings):
         default="change-this-to-a-random-secret-key", alias="SECRET_KEY"
     )
     allowed_origins: str = Field(
-        default="http://localhost:5173,http://localhost:3000",
+        default="*",
         alias="ALLOWED_ORIGINS",
     )
     rate_limit_per_minute: int = Field(default=60, alias="RATE_LIMIT_PER_MINUTE")
