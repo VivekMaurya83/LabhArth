@@ -105,7 +105,7 @@ def create_app() -> FastAPI:
     )
 
     # --- CORS Middleware ---
-    allow_origins = settings.allowed_origins_list
+    allow_origins = [origin for origin in settings.allowed_origins_list if origin.strip()]
     allow_credentials = True
     if "*" in allow_origins or not allow_origins:
         allow_origins = ["*"]
