@@ -111,10 +111,12 @@ Many eligible citizens miss out on government assistance due to complex legal ru
 
 ## 🖥️ Interface Previews (Screenshots)
 
-*   **Landing Page Dashboard:** `![Landing Dashboard](docs/assets/landing_dashboard.png)` (Placeholder)
-*   **Welfare Search & Matching Catalog:** `![Welfare Search](docs/assets/welfare_search.png)` (Placeholder)
-*   **Eligibility Verification Form:** `![Eligibility Verification](docs/assets/eligibility_check.png)` (Placeholder)
-*   **Multi-Agent AI Chat Window:** `![AI Assistant](docs/assets/ai_assistant.png)` (Placeholder)
+*   **Landing Page Dashboard:** <img width="1911" height="911" alt="image" src="https://github.com/user-attachments/assets/af20c1fd-e6c6-4586-95c8-013d0d81331a" />
+*   **Welfare Search & Matching Catalog:** <img width="1612" height="911" alt="image" src="https://github.com/user-attachments/assets/a77dced3-8b30-4b69-9289-03dcb5111ad8" />
+*   **Eligibility Verification Form:** <img width="1533" height="915" alt="image" src="https://github.com/user-attachments/assets/45e1228e-27df-4476-8ddc-b7c0887ec101" />
+*   **Multi-Agent AI Chat Window:** <img width="1567" height="833" alt="image" src="https://github.com/user-attachments/assets/9b1f59bd-0283-44e4-8903-3bbbfd47c473" />
+
+
 
 ---
 
