@@ -11,25 +11,33 @@
 ---
 
 ## 📖 Table of Contents
-1. [Platform Core Vision](#-platform-core-vision)
-2. [Key Capabilities](#-key-capabilities)
+1. [Project Overview & Problem Statement](#-project-overview--problem-statement)
+2. [Key Capabilities (Features)](#-key-capabilities)
 3. [System Architecture](#-system-architecture)
-4. [Technical Implementation Detail](#-technical-implementation-detail)
+4. [Tech Stack](#-tech-stack)
+5. [Interface Previews (Screenshots)](#-interface-previews-screenshots)
+6. [Technical Implementation Detail](#-technical-implementation-detail)
    - [Google ADK Multi-Agent Orchestration](#google-adk-multi-agent-orchestration)
    - [Model Context Protocol (MCP) Server](#model-context-protocol-mcp-server)
    - [Semantic Hybrid Storage & RAG Pipeline](#semantic-hybrid-storage--rag-pipeline)
    - [API Quota Rotation & Resilience](#api-quota-rotation--resilience)
    - [Security Shield (Prompt Injection Protection)](#security-shield-prompt-injection-protection)
-5. [Directory Layout](#-directory-layout)
-6. [Local Development Guide](#-local-development-guide)
-7. [Production Deployment Guide (Railway & Vercel)](DEPLOYMENT.md)
-8. [Verification & Testing](#-verification--testing)
+7. [Directory Layout (Folder Structure)](#-directory-layout)
+8. [Environment Variables](#-environment-variables)
+9. [Local Development Guide (Installation)](#-local-development-guide)
+10. [Production Deployment Guide & Links](DEPLOYMENT.md)
+11. [Verification & Testing](#-verification--testing)
+12. [Future Scope](#-future-scope)
 
 ---
 
-## 🎯 Platform Core Vision
+## 🎯 Project Overview & Problem Statement
 
-Many eligible citizens miss out on government assistance due to complex legal rules, fragmented information across sitemaps, and confusing paperwork requirements. **LabhArth AI** acts as a conversational bridge, allowing users to state their conditions in natural language (e.g. *"I am a small farmer in Maharashtra struggling with fertilizer costs"*) and instantly matching them with relevant state and central benefits.
+### 🔍 Project Overview
+**LabhArth AI** (derived from *Labh* + *Arth* meaning "Benefit" + "Meaning/Utility") is an agentic, conversational public-welfare discovery platform designed to simplify access to state and central government schemes for Indian citizens. Powered by Google Agent Development Kit (ADK) and Model Context Protocol (FastMCP), the system automates profile gathering, semantic catalog search, eligibility evaluation, and document readiness checklist workflows.
+
+### ⚠️ Problem Statement
+Many eligible citizens miss out on government assistance due to complex legal rules, fragmented information across sitemaps, and confusing paperwork requirements. **LabhArth AI** acts as a conversational bridge, allowing users to state their conditions in natural language (e.g. *"I am a small farmer in Maharashtra struggling with fertilizer costs"*) and instantly matching them with relevant state and central benefits. Traditional chatbots fail because scheme discovery and compliance assessment require multi-step reasoning, contextual fallbacks, and deterministic validation rules.
 
 ---
 
@@ -91,6 +99,25 @@ Many eligible citizens miss out on government assistance due to complex legal ru
 
 ---
 
+## 💻 Tech Stack
+
+*   **Frontend**: React 18, Vite, Framer Motion, Lucide React, HTML5 Canvas Particle System, Web Speech API (speech-to-text), CSS custom variables for Light/Dark mode.
+*   **Backend**: FastAPI, Uvicorn, Gzip payload compression middleware, custom exception recovery filters, Pydantic, HTTPX.
+*   **Agentic Orchestration**: Google Agent Development Kit (ADK), Model Context Protocol (FastMCP stdio server).
+*   **Database & Storage**: PostgreSQL (Neon Serverless) for relational scheme indices and rule states, Qdrant Cloud for vector chunk similarity search.
+*   **AI Models**: Gemini API (via Google GenAI SDK): `gemini-3.1-flash-lite` for agentic reasoning and decision summaries, `gemini-embedding-001` for vector embedding query generations.
+
+---
+
+## 🖥️ Interface Previews (Screenshots)
+
+*   **Landing Page Dashboard:** `![Landing Dashboard](docs/assets/landing_dashboard.png)` (Placeholder)
+*   **Welfare Search & Matching Catalog:** `![Welfare Search](docs/assets/welfare_search.png)` (Placeholder)
+*   **Eligibility Verification Form:** `![Eligibility Verification](docs/assets/eligibility_check.png)` (Placeholder)
+*   **Multi-Agent AI Chat Window:** `![AI Assistant](docs/assets/ai_assistant.png)` (Placeholder)
+
+---
+
 ## 🛠️ Technical Implementation Detail
 
 ### Google ADK Multi-Agent Orchestration
@@ -147,7 +174,24 @@ LabhArth/
 
 ---
 
-## 🚀 Local Deployment Guide
+## 🔐 Environment Variables
+
+The platform utilizes environmental configurations for database pools, security settings, and AI model keys. A template containing all defaults can be found at [.env.example](file:///d:/KAggle/LabhArth/.env.example).
+
+| Variable | Scope | Description | Default / Example |
+| :--- | :--- | :--- | :--- |
+| `DATABASE_URL` | Backend | PostgreSQL Connection string | `postgresql+asyncpg://...` |
+| `QDRANT_URL` | Backend | Qdrant vector db cluster host | `https://xxxx.qdrant.io` |
+| `QDRANT_API_KEY` | Backend | Qdrant api credentials | `your-qdrant-api-key` |
+| `GOOGLE_API_KEY` | Backend | Primary Gemini API Key | `your-gemini-api-key` |
+| `GEMINI_API_KEYS` | Backend | Rotation key pool list (comma-separated) | `key1,key2,key3` |
+| `ALLOWED_ORIGINS` | Backend | CORS Allowed Origins | `*` (or Vercel client domains) |
+| `APP_ENV` | Backend | App execution environment | `development` or `production` |
+| `VITE_API_BASE_URL` | Frontend | Target backend endpoints version path | `http://localhost:8000/api/v1` |
+
+---
+
+## 🚀 Local Development Guide
 
 ### Prerequisites
 *   **Python:** Version `3.11` or higher.
@@ -257,6 +301,15 @@ python -m backend.scripts.evaluate_rag
 *   **Average API Latency:** 2.12s
 *   **Duplicate Retrievals:** 0.00%
 *   **Response Integrity:** Verified (0.00% hallucinations detected)
+
+---
+
+## 🔮 Future Scope
+
+*   **Multi-lingual Speech Synthesis:** Expand Web Speech synthesis to read back eligibility guidelines and required checklists in Hindi, Marathi, Bengali, Telugu, and other regional languages.
+*   **Automated Document Scanning (OCR):** Integrate document uploads (e.g. Aadhaar, Income certificate) with Google Cloud Vision API to automatically verify details against the matched eligibility criteria.
+*   **Government API Integrations:** Directly link with state welfare databases to pre-populate citizen profile structures securely, reducing form-filling errors.
+*   **Mobile Messaging Channel (WhatsApp/SMS):** Add Twilio or official WhatsApp wrappers to text custom checklist URLs and reminders directly to offline citizens.
 
 ---
 
